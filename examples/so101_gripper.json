@@ -1,0 +1,7 @@
+{
+  "actions": [
+    {"action": "home"},
+    {"action": "gripper", "position": 80},
+    {"action": "gripper", "position": 0}
+  ]
+}

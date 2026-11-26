@@ -9,7 +9,8 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from turtlesim.msg import Pose
-from .planner import validate_plan
+from turtlesim.srv import SetPen
+from .planner import expand_actions, validate_plan
 
 
 class TurtlesimController(Node):
@@ -18,6 +19,7 @@ class TurtlesimController(Node):
         self.velocity_publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
         self.create_subscription(String, '/voice_cmd', self.voice_cmd_callback, 10)
         self.create_subscription(Pose, '/turtle1/pose', self.pose_callback, 10)
+        self.pen_client = self.create_client(SetPen, '/turtle1/set_pen')
         self.create_timer(0.05, self.tick)
         self.pose = None
         self.pose_time = 0.0
@@ -50,7 +52,7 @@ class TurtlesimController(Node):
         if self.pose is None or time.monotonic() - self.pose_time > 1:
             self.get_logger().error('No recent turtlesim pose; plan rejected')
             return
-        self.pending.extend(actions)
+        self.pending.extend(expand_actions(plan))
 
     def tick(self):
         now = time.monotonic()
@@ -65,6 +67,18 @@ class TurtlesimController(Node):
             if action['action'] == 'stop':
                 self.stop()
                 return
+            if action['action'] == 'set_pen':
+                if not self.pen_client.service_is_ready():
+                    self.get_logger().error('Pen service unavailable; stopping plan')
+                    self.stop()
+                    return
+                request = SetPen.Request()
+                request.r, request.g, request.b = action['r'], action['g'], action['b']
+                request.width = action['width']
+                request.off = 0 if action['enabled'] else 1
+                self.active = {'action': action, 'future': self.pen_client.call_async(request),
+                               'deadline': now + 5}
+                return
             target = action['distance'] if action['action'] == 'move' else action['angle']
             self.active = {'action': action, 'start': (self.pose.x, self.pose.y),
                            'previous_theta': self.pose.theta, 'turned': 0.0,
@@ -75,11 +89,21 @@ class TurtlesimController(Node):
             self.get_logger().error('Action timed out; stopping')
             self.stop()
             return
+        if action['action'] == 'set_pen':
+            if state['future'].done():
+                try:
+                    state['future'].result()
+                except Exception as exc:
+                    self.get_logger().error(f'Pen service failed; stopping plan: {exc}')
+                    self.stop()
+                    return
+                self.active = None
+            return
         twist = Twist()
         if action['action'] == 'move':
             progress = math.hypot(self.pose.x - state['start'][0], self.pose.y - state['start'][1])
             finished = progress >= action['distance']
-            twist.linear.x = action['speed'] * (1 if action['forward'] else -1)
+            twist.linear.x = float(action['speed'] * (1 if action['forward'] else -1))
         else:
             delta = math.atan2(math.sin(self.pose.theta - state['previous_theta']),
                                math.cos(self.pose.theta - state['previous_theta']))

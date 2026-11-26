@@ -1,0 +1,6 @@
+{
+  "actions": [
+    {"action": "set_pen", "r": 255, "g": 0, "b": 0, "width": 3, "enabled": true},
+    {"action": "square", "side": 0.4, "speed": 1, "clockwise": false}
+  ]
+}

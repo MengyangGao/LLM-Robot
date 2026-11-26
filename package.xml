@@ -2,7 +2,7 @@
 <package format="3">
   <name>rosgpt</name><version>0.2.0</version>
   <description>Local vision-language planning for ROS 2 turtlesim.</description>
-  <maintainer email="maintainer@example.com">LLM-Robot contributors</maintainer>
+  <maintainer email="gmy.kevinstark@gmail.com">Mengyang Gao</maintainer>
   <license>LicenseRef-SeeUpstream</license>
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>rclpy</exec_depend><exec_depend>std_msgs</exec_depend>

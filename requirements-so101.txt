@@ -1,0 +1,3 @@
+-r requirements-mujoco.txt
+gymnasium>=1,<2
+huggingface_hub>=0.30,<2

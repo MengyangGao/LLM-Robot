@@ -1,0 +1,12 @@
+<mujoco model="llm_robot_mobile_arena">
+  <include file="tidybot_base.xml"/>
+  <option timestep="0.005"/>
+  <visual><global offwidth="640" offheight="480"/></visual>
+  <worldbody>
+    <light pos="0 0 4" dir="0 0 -1"/>
+    <camera name="overhead" pos="0 0 5" xyaxes="1 0 0 0 1 0"/>
+    <geom name="floor" type="plane" size="3 3 .1" rgba=".92 .92 .92 1"/>
+    <geom name="red_marker" type="cylinder" pos="1.25 0 .015" size=".16 .015" rgba=".85 .08 .08 1" contype="0" conaffinity="0"/>
+    <geom name="blue_marker" type="cylinder" pos="0 1.25 .015" size=".16 .015" rgba=".08 .2 .85 1" contype="0" conaffinity="0"/>
+  </worldbody>
+</mujoco>

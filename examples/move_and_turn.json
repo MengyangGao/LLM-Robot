@@ -1,0 +1,6 @@
+{
+  "actions": [
+    {"action": "move", "distance": 0.5, "speed": 0.5, "forward": true},
+    {"action": "rotate", "angle": 45, "speed": 30, "clockwise": false}
+  ]
+}

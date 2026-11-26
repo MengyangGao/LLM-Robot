@@ -3,3 +3,5 @@ __pycache__
 /build/
 /install/
 /log/
+/.venv*/
+/MUJOCO_LOG.TXT
